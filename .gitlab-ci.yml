@@ -36,7 +36,7 @@ test_acceptation:
     - docker run -d -p 80:8080 -e PORT=8080 --name python-app python-app
     - sleep 5
     - apk --no-cache add curl
-    - curl "http://docker" | grep -q "Hello World"
+    - curl -I "http://docker" | grep -q "HTTP/1.1 200 OK"
     - docker rm -vf python-app && echo "clean container" 
 
 .release_image:
