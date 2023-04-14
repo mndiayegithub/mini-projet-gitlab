@@ -26,7 +26,7 @@ build:
     paths:
       - python-app.tar
 
-.test_acceptation:
+test_acceptation:
   stage: Test acceptation
   script:
     - echo "Test the image"
