@@ -10,6 +10,7 @@ stages:
   - Test acceptation
   - Release image
   - Deploy review
+  - Test review
   - Stop review
   - Deploy staging
   - Test staging
@@ -59,7 +60,7 @@ stages:
     - docker push "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
     - docker push "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
 
-.deploy_staging:
+deploy_staging:
   stage: Deploy staging
   environment:
     name: staging
@@ -75,7 +76,7 @@ stages:
     - heroku container:push -a my-static-website-staging web
     - heroku container:release -a my-static-website-staging web
 
-.deploy_prod:
+deploy_prod:
   stage: Deploy prod
   environment:
     name: prod
@@ -91,7 +92,7 @@ stages:
     - heroku container:push -a my-static-website-prod web
     - heroku container:release -a my-static-website-prod web
 
-deploy_review:
+.deploy_review:
   stage: Deploy review 
   environment: 
     name: review/$CI_COMMIT_REF_NAME
@@ -107,7 +108,7 @@ deploy_review:
     - heroku container:push -a my-static-website-$CI_COMMIT_REF_NAME web 
     - heroku container:release -a my-static-website-$CI_COMMIT_REF_NAME web
 
-stop_review:
+.stop_review:
   stage: Stop review 
   variables:
     GIT_STRATEGY: none
@@ -123,20 +124,14 @@ stop_review:
     - heroku container:login
     - heroku apps:destroy -a my-static-website-$CI_COMMIT_REF_NAME -c my-static-website-$CI_COMMIT_REF_NAME
 
-.test_staging:
+test_staging:
   <<: *test
   stage: Test staging
   variables:
     DOMAIN: my-static-website-staging.herokuapp.com
 
-.test_prod:
+test_prod:
   <<: *test
   stage: Test prod
   variables:
     DOMAIN: my-static-website-prod.herokuapp.com
-
-test_review:
-  <<: *test
-  stage: Test $CI_COMMIT_REF_NAME
-  variables:
-    DOMAIN: my-static-website-$CI_COMMIT_REF_NAME.herokuapp.com
