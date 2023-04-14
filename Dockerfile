@@ -1,9 +1,10 @@
 FROM nginx:latest
 
-ADD ./index.html /var/www/html
+#ADD ./index.html /var/www/html
+ADD ./ /var/www/html
 ADD ./nginx.conf /etc/nginx/nginx.conf
 
-ADD ./ ./
+#ADD ./ ./
 
 #EXPOSE 8080
 
