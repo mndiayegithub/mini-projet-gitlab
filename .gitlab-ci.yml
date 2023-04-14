@@ -37,7 +37,7 @@ test_acceptation:
     - sleep 5
     - apk --no-cache add curl
     #- curl -I http://docker
-    - curl -I "http://docker" | grep -q "HTTP/1.1 200 OK"
+    - curl -I "http://docker" |grep -q "HTTP/1.1 200 OK"
     - docker rm -vf python-app && echo "clean container" 
 
 .release_image:
