@@ -24,7 +24,7 @@ stages:
     - apk --no-cache add curl 
     - curl -X GET "https://$DOMAIN" | grep -q "Welcome"
 
-build:
+.build:
   stage: Build image 
   script:
     - echo "Build the image"
@@ -34,7 +34,7 @@ build:
     paths:
       - static-website.tar
 
-test_acceptation:
+.test_acceptation:
   stage: Test acceptation
   script:
     - echo "Test the image"
@@ -48,7 +48,7 @@ test_acceptation:
     #- curl -I "http://docker" |grep -q "HTTP/1.1 200 OK"
     - docker rm -vf static-website && echo "clean container" 
 
-release_image:
+.release_image:
   stage: Release image
   script:
     - echo "Release the image"
@@ -63,7 +63,7 @@ deploy_staging:
   stage: Deploy staging
   environment:
     name: staging
-    url: https://static-website-staging.herokuapp.com/
+    url: https://my-static-website-staging.herokuapp.com/
   only:
     - master 
   script:
@@ -71,15 +71,15 @@ deploy_staging:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku create static-website-staging || echo "project already exists"
-    - heroku container:push -a static-website-staging web
-    - heroku container:release -a static-website-staging web
+    - heroku create my-static-website-staging || echo "project already exists"
+    - heroku container:push -a my-static-website-staging web
+    - heroku container:release -a my-static-website-staging web
 
 deploy_prod:
   stage: Deploy prod
   environment:
     name: prod
-    url: https://static-website-prod.herokuapp.com/
+    url: https://my-static-website-prod.herokuapp.com/
   only:
     - master
   script:
@@ -87,9 +87,9 @@ deploy_prod:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku create static-website-prod || echo "project already exists"
-    - heroku container:push -a static-website-prod web
-    - heroku container:release -a static-website-prod web
+    - heroku create my-static-website-prod || echo "project already exists"
+    - heroku container:push -a my-static-website-prod web
+    - heroku container:release -a my-static-website-prod web
 
 .deploy_review:
   stage: Deploy review 
