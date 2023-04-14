@@ -95,7 +95,7 @@ deploy_prod:
   stage: Deploy review 
   environment: 
     name: review/$CI_COMMIT_REF_NAME
-    url: https://static-website-$CI_COMMIT_REF_NAME.herokuapp.com/
+    url: https://my-static-website-$CI_COMMIT_REF_NAME.herokuapp.com/
     on_stop: stop_review
   only:
     - merge_requests
@@ -103,9 +103,9 @@ deploy_prod:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku create static-website-$CI_COMMIT_REF_NAME || echo "Project already exist"
-    - heroku container:push -a static-website-$CI_COMMIT_REF_NAME web 
-    - heroku container:release -a static-website-$CI_COMMIT_REF_NAME web
+    - heroku create my-static-website-$CI_COMMIT_REF_NAME || echo "Project already exist"
+    - heroku container:push -a my-static-website-$CI_COMMIT_REF_NAME web 
+    - heroku container:release -a my-static-website-$CI_COMMIT_REF_NAME web
 
 .stop_review:
   stage: Stop review 
@@ -121,16 +121,16 @@ deploy_prod:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku apps:destroy -a static-website-$CI_COMMIT_REF_NAME -c static-website-$CI_COMMIT_REF_NAME
+    - heroku apps:destroy -a my-static-website-$CI_COMMIT_REF_NAME -c my-static-website-$CI_COMMIT_REF_NAME
 
-.test_staging:
+test_staging:
   <<: *test
   stage: Test staging
   variables:
-    DOMAIN: static-website-staging.herokuapp.com
+    DOMAIN: my-static-website-staging.herokuapp.com
 
-.test_prod:
+test_prod:
   <<: *test
   stage: Test prod
   variables:
-    DOMAIN: static-website-prod.herokuapp.com
+    DOMAIN: my-static-website-prod.herokuapp.com
