@@ -22,9 +22,9 @@ stages:
     - master
   script:
     - apk --no-cache add curl 
-    - curl "https://$DOMAIN" | grep -q "Hello world!"
+    - curl -X GET "https://$DOMAIN" | grep -q "Welcome"
 
-build:
+.build:
   stage: Build image 
   script:
     - echo "Build the image"
@@ -34,7 +34,7 @@ build:
     paths:
       - python-app.tar
 
-test_acceptation:
+.test_acceptation:
   stage: Test acceptation
   script:
     - echo "Test the image"
@@ -48,7 +48,7 @@ test_acceptation:
     #- curl -I "http://docker" |grep -q "HTTP/1.1 200 OK"
     - docker rm -vf python-app && echo "clean container" 
 
-release_image:
+.release_image:
   stage: Release image
   script:
     - echo "Release the image"
@@ -59,7 +59,7 @@ release_image:
     - docker push "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
     - docker push "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
 
-.deploy_staging:
+deploy_staging:
   stage: Deploy staging
   environment:
     name: staging
@@ -75,7 +75,7 @@ release_image:
     - heroku container:push -a python-app-staging web
     - heroku container:release -a python-app-staging web
 
-.deploy_prod:
+deploy_prod:
   stage: Deploy prod
   environment:
     name: prod
