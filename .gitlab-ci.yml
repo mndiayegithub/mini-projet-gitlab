@@ -24,37 +24,37 @@ stages:
     - apk --no-cache add curl 
     - curl -X GET "https://$DOMAIN" | grep -q "Welcome"
 
-.build:
+build:
   stage: Build image 
   script:
     - echo "Build the image"
-    - docker build -t python-app .
-    - docker save python-app > python-app.tar
+    - docker build -t static-website .
+    - docker save static-website > static-website.tar
   artifacts:
     paths:
-      - python-app.tar
+      - static-website.tar
 
-.test_acceptation:
+test_acceptation:
   stage: Test acceptation
   script:
     - echo "Test the image"
-    - docker rmi python-app || echo "image has been deleted"
-    - docker load < python-app.tar
-    - docker rm -vf python-app || echo "container already deleted"
-    - docker run -d -p 80:8080 -e PORT=8080 --name python-app python-app
+    - docker rmi static-website || echo "image has been deleted"
+    - docker load < static-website.tar
+    - docker rm -vf static-website || echo "container already deleted"
+    - docker run -d -p 80:8080 -e PORT=8080 --name static-website static-website
     - sleep 5
     - apk --no-cache add curl
     - curl -X GET "http://docker" | grep -q "Welcome"
     #- curl -I "http://docker" |grep -q "HTTP/1.1 200 OK"
-    - docker rm -vf python-app && echo "clean container" 
+    - docker rm -vf static-website && echo "clean container" 
 
-.release_image:
+release_image:
   stage: Release image
   script:
     - echo "Release the image"
-    - docker load < python-app.tar
-    - docker tag python-app "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
-    - docker tag python-app "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
+    - docker load < static-website.tar
+    - docker tag static-website "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
+    - docker tag static-website "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
     - docker push "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
     - docker push "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
@@ -63,7 +63,7 @@ deploy_staging:
   stage: Deploy staging
   environment:
     name: staging
-    url: https://python-app-staging.herokuapp.com/
+    url: https://static-website-staging.herokuapp.com/
   only:
     - master 
   script:
@@ -71,15 +71,15 @@ deploy_staging:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku create python-app-staging || echo "project already exists"
-    - heroku container:push -a python-app-staging web
-    - heroku container:release -a python-app-staging web
+    - heroku create static-website-staging || echo "project already exists"
+    - heroku container:push -a static-website-staging web
+    - heroku container:release -a static-website-staging web
 
 deploy_prod:
   stage: Deploy prod
   environment:
     name: prod
-    url: https://python-app-prod.herokuapp.com/
+    url: https://static-website-prod.herokuapp.com/
   only:
     - master
   script:
@@ -87,15 +87,15 @@ deploy_prod:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku create python-app-prod || echo "project already exists"
-    - heroku container:push -a python-app-prod web
-    - heroku container:release -a python-app-prod web
+    - heroku create static-website-prod || echo "project already exists"
+    - heroku container:push -a static-website-prod web
+    - heroku container:release -a static-website-prod web
 
 .deploy_review:
   stage: Deploy review 
   environment: 
     name: review/$CI_COMMIT_REF_NAME
-    url: https://alpinehelloworld-$CI_COMMIT_REF_NAME.herokuapp.com/
+    url: https://static-website-$CI_COMMIT_REF_NAME.herokuapp.com/
     on_stop: stop_review
   only:
     - merge_requests
@@ -103,9 +103,9 @@ deploy_prod:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku create python-app-$CI_COMMIT_REF_NAME || echo "Project already exist"
-    - heroku container:push -a python-app-$CI_COMMIT_REF_NAME web 
-    - heroku container:release -a python-app-$CI_COMMIT_REF_NAME web
+    - heroku create static-website-$CI_COMMIT_REF_NAME || echo "Project already exist"
+    - heroku container:push -a static-website-$CI_COMMIT_REF_NAME web 
+    - heroku container:release -a static-website-$CI_COMMIT_REF_NAME web
 
 .stop_review:
   stage: Stop review 
@@ -121,16 +121,16 @@ deploy_prod:
     - apk --no-cache add npm
     - npm install -g heroku
     - heroku container:login
-    - heroku apps:destroy -a python-app-$CI_COMMIT_REF_NAME -c python-app-$CI_COMMIT_REF_NAME
+    - heroku apps:destroy -a static-website-$CI_COMMIT_REF_NAME -c static-website-$CI_COMMIT_REF_NAME
 
 .test_staging:
   <<: *test
   stage: Test staging
   variables:
-    DOMAIN: python-app-staging.herokuapp.com
+    DOMAIN: static-website-staging.herokuapp.com
 
 .test_prod:
   <<: *test
   stage: Test prod
   variables:
-    DOMAIN: python-app-prod.herokuapp.com
+    DOMAIN: static-website-prod.herokuapp.com
