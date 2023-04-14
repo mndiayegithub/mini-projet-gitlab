@@ -135,3 +135,10 @@ test_prod:
   stage: Test prod
   variables:
     DOMAIN: my-static-website-prod.herokuapp.com
+
+test_review:
+  <<: *test
+  stage: Test review
+  variables:
+    DOMAIN: my-static-website-$CI_COMMIT_REF_NAME.herokuapp.com
+
