@@ -1,0 +1,83 @@
+---
+  # Use the official docker image.
+image: docker:latest
+services:
+  - name: docker:dind
+    alias: docker
+
+stages:
+  - Build image
+  - Test acceptation
+  - Release image
+  - Deploy review
+  - Stop review
+  - Deploy staging
+  - Test staging
+  - Deploy prod
+  - Test prod
+
+build:
+  stage: Build image 
+  script:
+    - echo "Build the image"
+    - docker build -t python-app .
+    - docker save python-app > python-app.tar
+  artifacts:
+    paths:
+      - python-app.tar
+
+.test_acceptation:
+  stage: Test acceptation
+  script:
+    - echo "Test the image"
+    - docker rmi python-app || echo "image has been deleted"
+    - docker load < python-app.tar
+    - docker rm -vf python-app || echo "container already deleted"
+    - docker run -d -p 80:8080 -e PORT=8080 --name python-app python-app
+    - sleep 5
+    - apk --no-cache add curl
+    - curl "http://docker" | grep -q "Hello World"
+    - docker rm -vf python-app && echo "clean container" 
+
+.release_image:
+  stage: Release image
+  script:
+    - echo "Release the image"
+    - docker load < python-app.tar
+    - docker tag python-app "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
+    - docker tag python-app "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - docker push "${IMAGE_NAME}:${CI_COMMIT_REF_NAME}"
+    - docker push "${IMAGE_NAME}:${CI_COMMIT_SHORT_SHA}"
+
+.deploy_staging:
+  stage: Deploy staging
+  environment:
+    name: staging
+    url: https://python-app-staging.herokuapp.com/
+  only:
+    - master 
+  script:
+    - echo "Deploy to staging server"
+    - apk --no-cache add npm
+    - npm install -g heroku
+    - heroku container:login
+    - heroku create python-app-staging || echo "project already exists"
+    - heroku container:push -a python-app-staging web
+    - heroku container:release -a python-app-staging web
+
+.deploy_prod:
+  stage: Deploy prod
+  environment:
+    name: prod
+    url: https://python-app-prod.herokuapp.com/
+  only:
+    - master
+  script:
+    - echo "Deploy to prod server"
+    - apk --no-cache add npm
+    - npm install -g heroku
+    - heroku container:login
+    - heroku create python-app-prod || echo "project already exists"
+    - heroku container:push -a python-app-prod web
+    - heroku container:release -a python-app-prod web
