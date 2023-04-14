@@ -1,15 +1,8 @@
-FROM nginx:latest
+FROM nginx:alpine
 
-#ADD ./index.html /var/www/html
 ADD ./ /var/www/html
 ADD ./nginx.conf /etc/nginx/nginx.conf
 
-#ADD ./ ./
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-#EXPOSE 8080
-
-RUN adduser -D nginx
-USER nginx
-
-
-CMD gunicorn --bind 0.0.0.0:$PORT wsgi 
+CMD sed -i -e 's/$PORT/'"$PORT"'/g' /etc/nginx/conf.d/default.conf && nginx -g 'daemon off'
