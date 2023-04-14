@@ -92,7 +92,7 @@ deploy_prod:
     - heroku container:push -a my-static-website-prod web
     - heroku container:release -a my-static-website-prod web
 
-.deploy_review:
+deploy_review:
   stage: Deploy review 
   environment: 
     name: review/$CI_COMMIT_REF_NAME
@@ -108,7 +108,7 @@ deploy_prod:
     - heroku container:push -a my-static-website-$CI_COMMIT_REF_NAME web 
     - heroku container:release -a my-static-website-$CI_COMMIT_REF_NAME web
 
-.stop_review:
+stop_review:
   stage: Stop review 
   variables:
     GIT_STRATEGY: none
@@ -124,19 +124,19 @@ deploy_prod:
     - heroku container:login
     - heroku apps:destroy -a my-static-website-$CI_COMMIT_REF_NAME -c my-static-website-$CI_COMMIT_REF_NAME
 
-test_staging:
+.test_staging:
   <<: *test
   stage: Test staging
   variables:
     DOMAIN: my-static-website-staging.herokuapp.com
 
-test_prod:
+.test_prod:
   <<: *test
   stage: Test prod
   variables:
     DOMAIN: my-static-website-prod.herokuapp.com
 
-test_review:
+.test_review:
   <<: *test
   stage: Test review
   variables:
