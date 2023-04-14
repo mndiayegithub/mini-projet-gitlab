@@ -16,6 +16,14 @@ stages:
   - Deploy prod
   - Test prod
 
+.test_template: &test
+  image: alpine
+  only:
+    - master
+  script:
+    - apk --no-cache add curl 
+    - curl "https://$DOMAIN" | grep -q "Hello world!"
+
 build:
   stage: Build image 
   script:
@@ -36,8 +44,8 @@ test_acceptation:
     - docker run -d -p 80:8080 -e PORT=8080 --name python-app python-app
     - sleep 5
     - apk --no-cache add curl
-    #- curl -I http://docker
-    - curl -I "http://docker" |grep -q "HTTP/1.1 200 OK"
+    - curl -X GET "http://docker" | grep -q "Welcome"
+    #- curl -I "http://docker" |grep -q "HTTP/1.1 200 OK"
     - docker rm -vf python-app && echo "clean container" 
 
 .release_image:
@@ -82,3 +90,47 @@ test_acceptation:
     - heroku create python-app-prod || echo "project already exists"
     - heroku container:push -a python-app-prod web
     - heroku container:release -a python-app-prod web
+
+.deploy_review:
+  stage: Deploy review 
+  environment: 
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://alpinehelloworld-$CI_COMMIT_REF_NAME.herokuapp.com/
+    on_stop: stop_review
+  only:
+    - merge_requests
+  script:
+    - apk --no-cache add npm
+    - npm install -g heroku
+    - heroku container:login
+    - heroku create python-app-$CI_COMMIT_REF_NAME || echo "Project already exist"
+    - heroku container:push -a python-app-$CI_COMMIT_REF_NAME web 
+    - heroku container:release -a python-app-$CI_COMMIT_REF_NAME web
+
+.stop_review:
+  stage: Stop review 
+  variables:
+    GIT_STRATEGY: none
+  environment: 
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
+  only:
+    - merge_requests
+  when: manual
+  script:
+    - apk --no-cache add npm
+    - npm install -g heroku
+    - heroku container:login
+    - heroku apps:destroy -a python-app-$CI_COMMIT_REF_NAME -c python-app-$CI_COMMIT_REF_NAME
+
+.test_staging:
+  <<: *test
+  stage: Test staging
+  variables:
+    DOMAIN: python-app-staging.herokuapp.com
+
+.test_prod:
+  <<: *test
+  stage: Test prod
+  variables:
+    DOMAIN: python-app-prod.herokuapp.com
