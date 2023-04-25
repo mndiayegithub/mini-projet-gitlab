@@ -9,7 +9,7 @@ Ce projet a pour but de mettre en pratique les connaissances de mise en place d'
 ## Workflow du pipeline
 
 - **Build image**
-    - _Condition_ : S'éxecute pour chaque commit.
+    - _Condition_ : S'éxecute pour chaque commit sur la branche principale.
     - Construit l'image Docker de l'application en utilisant le Dockerfile crée ci - dessus.
     - Sauvegarde l'image buildée sous forme d'artefact réutilisable dans un fichier _`static-website.tar`_.
  
