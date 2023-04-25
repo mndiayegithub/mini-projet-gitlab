@@ -60,7 +60,7 @@ Ce projet a pour but de mettre en pratique les connaissances de mise en place d'
 Le dockerfile présent ci - dessus a été utilisé afin de builder l'image de l'application web statique et la déployer sur un serveur Nginx. Ce Dockerfile utilise une image _`nginx:alpine`_ permettant d'avoir une image buildée très légère n'incluant que le strict nécessaire et ainsi d'améliorer la rapidité de build.
 
 ### Acceptance test
-Dans cette étape, un test d'acceptance est effectué sur l'image Docker buildée. L'image est chargée à partir d'un artefact _`static-website.tar`_, puis éxecutée sur un conteneur. Une requête HTTP est ensuite lancé afin de vérifier la présence d'un contenu spécifique ("Welcome") dans la réponse.
+Dans cette étape, un test d'acceptance est effectué sur l'image Docker buildée. L'image est chargée à partir d'un artefact _`static-website.tar`_, puis éxecutée sur un conteneur. Ensuite, une requête HTTP est lancé afin de vérifier la présence d'un contenu spécifique ("Welcome") dans la réponse.
 
 ### Release image
 Après avoir chargé l'image buildée à partir de l'artefact _`static-website.tar`_, celle - ci est taggée avec le nom de la branche et le commit SHA, puis ensuite publiée dans notre registre Gitlab. Cette méthode permet de garder une trace des images pour chaque commit, facilitant le suivi des versions et la gestion des déploiements.
