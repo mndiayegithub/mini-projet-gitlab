@@ -5,6 +5,7 @@ Ce projet a pour but de mettre en pratique les connaissances de mise en place d'
 
 ## Aperçu du pipeline CI/CD
 
+![pipeline ci/cd](images/pipeline-ci-cd.jpeg "pipeline ci/cd")
 
 ## Workflow du pipeline
 
@@ -75,6 +76,8 @@ Cette étape est conçu afin de supprimer l'environnement de review sur notre Cl
 Après chaque déploiement dans un environnement, un test d'acceptance est effectué afin valider le fonctionnement de notre application. 
 
 ## Aperçu du site 
+
+![apercu_static_website](images/static-website.png "apercu_static_website")
 
 ## Technologies utilisées
 
