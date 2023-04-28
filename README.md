@@ -1,5 +1,7 @@
 # Mini project Gitlab CI
 
+![image](https://user-images.githubusercontent.com/58290325/235227008-6d2de55d-686d-44f6-88e8-b161128f6333.png)
+
 Ce projet a pour but de mettre en pratique les connaissances de mise en place d'un pipeline CI/CD avec Gitlab afin d'automatiser les étapes de build, de test et de deploiement d'une application web statique en staging et prod sur un environnement Cloud Heroku. Ce rapport explique les étapes du pipeline sous un fichier _`.gitlab-ci.yml`_ ainsi que les avantages de cette approche.
 
 
